@@ -1,3 +1,4 @@
 gradio
 boto3
 requests
+dotenv

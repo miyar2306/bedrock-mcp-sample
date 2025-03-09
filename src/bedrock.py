@@ -1,44 +1,48 @@
 import os
 import json
-import requests
+import boto3
 
-def get_bedrock_response(input_text):
+def get_bedrock_response(input_text, history,state):
     """
-    Calls the Amazon Bedrock API to get a response for the input_text.
-    Loads the configuration from config/config.json.
-    If the endpoint is not configured, returns a simulated response.
+    AWS認証情報を用いてAmazon Bedrock Converse APIを呼び出す。
     """
-    # Determine the path for the configuration file
-    config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'config.json')
-    try:
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-    except Exception as e:
-        return f"Error loading configuration: {e}"
+    # AWS認証情報のチェック
+    if not (os.environ.get("AWS_ACCESS_KEY_ID") and os.environ.get("AWS_SECRET_ACCESS_KEY")):
+        return "Error: AWS認証情報が不足している。", history
 
-    # Retrieve API endpoint and API key from configuration
-    endpoint = config.get('bedrock_endpoint')
-    api_key = config.get('api_key')
-
-    # If no endpoint is provided, return a simulated response
-    if not endpoint:
-        return f"Simulated response from Bedrock for input: {input_text}"
-
-    # Prepare headers and payload for the API request
-    headers = {
-        'Content-Type': 'application/json'
-    }
-    if api_key:
-        headers['Authorization'] = f'Bearer {api_key}'
-
-    payload = {
-        "input": input_text
-    }
+    BEDROCK_MODEL_ID = "us.amazon.nova-pro-v1:0"
+    system = [{"text": "You are a helpful AI assistant."}]
+    state.append({
+                "role": "user",
+                "content": [{"text": input_text}]
+            })
+    
+    messages = state.copy()
 
     try:
-        response = requests.post(endpoint, headers=headers, json=payload)
-        response.raise_for_status()
-        result = response.json()
-        return result.get('result', 'No result found in response.')
+        client = boto3.client("bedrock-runtime")
     except Exception as e:
-        return f"Error calling Bedrock API: {e}"
+        return f"Error creating boto3 client: {e}", history
+
+    try:
+        response = client.converse(
+            modelId=BEDROCK_MODEL_ID,
+            messages=messages,
+            system=system,
+            inferenceConfig={
+                "maxTokens": 300,
+                "topP": 0.1,
+                "temperature": 0.3
+            }
+        )
+        output_message = response['output']['message']
+        messages.append(output_message)
+        response_text = ""
+        for content in output_message['content']:
+            if 'text' in content:
+                response_text += content['text'] + "\n"
+        # 履歴はタプル形式にして追加する
+        # history.append((input_text, response_text))
+        return response_text,messages
+    except Exception as e:
+        return f"Error invoking Bedrock Converse API: {e}"
