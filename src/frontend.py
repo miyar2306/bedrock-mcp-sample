@@ -7,12 +7,12 @@ def submit_text(input_text):
     response = get_bedrock_response(input_text)
     return response
 
-def chat_interface(user_message, history,state):
+async def chat_interface(user_message, history,state):
     if history is None:
         history = []
     if state is None:
         state = []
-    response,new_state = get_bedrock_response(user_message, history,state)
+    response,new_state = await get_bedrock_response(user_message, history,state)
     return response,new_state
 
 chat_state_component = gr.State(value = None)
@@ -22,7 +22,7 @@ demo = gr.ChatInterface(
     title="Amazon Bedrock Chat",
     additional_inputs=[chat_state_component],
     additional_outputs=[chat_state_component],
-    description="チャット形式でAmazon Bedrockとの連携を行うインターフェースです。"
+    description="Chat interface for interacting with Amazon Bedrock."
 )
 
 if __name__ == "__main__":

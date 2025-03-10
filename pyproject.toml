@@ -16,6 +16,9 @@ dependencies = [
     "mcp",
 ]
 
+[project.scripts]
+mcp-fetch-website = "src.mcp_fetch_website.server:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest",
