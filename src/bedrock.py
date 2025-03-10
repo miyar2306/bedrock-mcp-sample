@@ -35,9 +35,9 @@ def convert_tool_format(tools):
     return {"tools": converted_tools}
 
 
-async def get_bedrock_response(input_text, history,state):
+async def get_bedrock_response(input_text, history, state):
     """
-    AWS認証情報を用いてAmazon Bedrock Converse APIを呼び出す。
+    Calls the Amazon Bedrock Converse API using AWS credentials.
     """
 
     async with stdio_client(
@@ -123,6 +123,6 @@ async def get_bedrock_response(input_text, history,state):
                         for content in output_message['content']:
                             if 'text' in content:
                                 response_text += content['text'] + "\n"
-                        return response_text,messages
+                        return response_text, messages
             except Exception as e:
-                return f"Error invoking Bedrock Converse API: {e}",messages
+                return f"Error invoking Bedrock Converse API: {e}", messages
