@@ -6,9 +6,6 @@ def get_bedrock_response(input_text, history,state):
     """
     AWS認証情報を用いてAmazon Bedrock Converse APIを呼び出す。
     """
-    # AWS認証情報のチェック
-    if not (os.environ.get("AWS_ACCESS_KEY_ID") and os.environ.get("AWS_SECRET_ACCESS_KEY")):
-        return "Error: AWS認証情報が不足している。", history
 
     BEDROCK_MODEL_ID = "us.amazon.nova-pro-v1:0"
     system = [{"text": "You are a helpful AI assistant."}]
@@ -45,4 +42,4 @@ def get_bedrock_response(input_text, history,state):
         # history.append((input_text, response_text))
         return response_text,messages
     except Exception as e:
-        return f"Error invoking Bedrock Converse API: {e}"
+        return f"Error invoking Bedrock Converse API: {e}",messages
