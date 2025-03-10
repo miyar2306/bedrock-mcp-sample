@@ -5,7 +5,8 @@
 ## プロジェクト構成
 
 - **README.md**: プロジェクトの説明およびドキュメント。
-- **requirements.txt**: Pythonの依存パッケージ一覧。
+- **pyproject.toml**: Pythonプロジェクトの設定ファイル。uvで使用する依存パッケージ情報を含みます。
+- **requirements.txt**: 従来のpipで使用する依存パッケージ一覧。
 - **config/config.json**: Amazon Bedrockの設定ファイル。  
   BedrockのAPIエンドポイントおよびAPIキーを記載してください。
 - **src/frontend.py**: Gradioを使用したフロントエンドの実装。  
@@ -13,8 +14,42 @@
 - **src/bedrock.py**: Amazon Bedrockとの通信処理を担当。  
   設定ファイルから情報を読み取り、APIリクエストを送信します。  
   エンドポイントが設定されていない場合はシミュレートされた応答を返します。
+- **src/mcp_tools/**: Model Context Protocol (MCP) サーバーの実装。
+  Webサイトのコンテンツを取得するツールを提供します。
 
 ## セットアップ
+
+### uvを使用する方法（推奨）
+
+1. uvをインストールしてください:
+   ```
+   pip install uv
+   ```
+
+2. 依存パッケージをインストールしてください:
+   ```
+   uv pip sync pyproject.toml
+   ```
+
+3. 開発用の依存パッケージもインストールする場合:
+   ```
+   uv pip sync pyproject.toml --extras dev
+   ```
+
+4. `config/config.json` を、ご自身のAmazon Bedrockの設定に合わせて更新してください:
+   ```json
+   {
+       "bedrock_endpoint": "YOUR_BEDROCK_ENDPOINT",
+       "api_key": "YOUR_API_KEY"
+   }
+   ```
+
+5. Gradioインターフェイスを起動します:
+   ```
+   uv run python src/frontend.py
+   ```
+
+### 従来のpipを使用する方法
 
 1. 必要なパッケージをインストールしてください:
    ```

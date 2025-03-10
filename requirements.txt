@@ -2,3 +2,7 @@ gradio
 boto3
 requests
 dotenv
+anyio>=4.5
+click>=8.1.0
+httpx>=0.27
+mcp
